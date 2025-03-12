@@ -1,9 +1,9 @@
 <?php
 require_once (__DIR__ . '/../config/DataBase.php');
 
-class Cultivos {
+class ProductoControl {
     private $conn;
-    private $table = "cultivos";
+    private $table = "productoscontrol";
 
     public function __construct() {
         $database = new Database();
@@ -23,32 +23,41 @@ class Cultivos {
         $stmt->execute([$id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
     public function create($data) {
-        $query = "INSERT INTO ". $this->table. "(fk_Especies, nombre, unidades, activo, fechaSiembra) VALUES (?, ?, ?, ?, ?)";
+        $query = "INSERT INTO ". $this->table. " (nombre, precio, compuestoActivo, fichaTecnica, contenido, tipoContenido, unidades) VALUES (?, ?, ?, ?, ?, ?, ?)";
         $stmt = $this->conn->prepare($query);
         return $stmt->execute([
-            $data['fk_Especies'],
             $data['nombre'],
-            $data['unidades'],
-            $data['activo'],
-            $data['fechaSiembra']
+            $data['precio'],
+            $data['compuestoActivo'],
+            $data['fichaTecnica'],
+            $data['contenido'],
+            $data['tipoContenido'],
+            $data['unidades']
         ]);
     }
+    
     public function update($id, $data) {
-        $query = "UPDATE ". $this->table. " SET fk_Especies =?, nombre =?, unidades =?, activo =?, fechaSiembra =? WHERE id =?";
+        $query = "UPDATE ". $this->table. " SET nombre =?, precio =?, compuestoActivo =?, fichaTecnica =?, contenido =?, tipoContenido =?, unidades =? WHERE id =?";
         $stmt = $this->conn->prepare($query);
         return $stmt->execute([
-            $data['fk_Especies'],
             $data['nombre'],
+            $data['precio'],
+            $data['compuestoActivo'],
+            $data['fichaTecnica'],
+            $data['contenido'],
+            $data['tipoContenido'],
             $data['unidades'],
-            $data['activo'],
-            $data['fechaSiembra'],
             $id
         ]);
+    
     }
+    
     public function delete($id) {
         $query = "DELETE FROM ". $this->table. " WHERE id =?";
         $stmt = $this->conn->prepare($query);
         return $stmt->execute([$id]);
+    
     }
 }

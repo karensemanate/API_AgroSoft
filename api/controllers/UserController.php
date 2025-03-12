@@ -1,7 +1,6 @@
 <?php
-
-require_once (__DIR__ . '/../config/DataBase.php');
-require_once (__DIR__ . '/../models/User.php');
+require_once './api/models/User.php';
+require_once(__DIR__ . '/../config/DataBase.php');
 
 class UserController {
     private $user;
@@ -12,68 +11,81 @@ class UserController {
         $this->user = new User($this->db);
     }
 
-    public function getAllUsers() {
+    public function getAll() {
+        header('Content-Type: application/json');
         $users = $this->user->getAll();
 
-        if (!empty($users)) {
-            echo json_encode([
-                'status' => 'success',
-                'datos' => $users
-            ]);
-        } else {
-            echo json_encode([
-                'status' => 'Error',
-                'message' => 'No se encontraron usuarios'
-            ]);
-        }
+        echo json_encode([
+            'status' => !empty($users) ? 'success' : 'error',
+            'message' => !empty($users) ? 'Usuarios encontrados' : 'No se encontraron usuarios',
+            'datos' => $users
+        ]);
     }
 
-    public function getUserById($id) {
+    // Obtener un usuario por ID
+    public function getById($id) {
+        header('Content-Type: application/json');
         $user = $this->user->getById($id);
         echo json_encode($user ?: ["status" => "error", "message" => "Usuario no encontrado"]);
     }
 
-    public function createUser($data) {
+    // Crear un usuario
+    public function create() {
+        header('Content-Type: application/json');
+        $data = json_decode(file_get_contents("php://input"), true);
+
         if (!$this->validateUserData($data)) {
             echo json_encode(["status" => "error", "message" => "Datos inválidos"]);
             return;
         }
 
-        $data['passwordHash'] = password_hash($data['passwordHash'], PASSWORD_BCRYPT);
+        // Hashear la contraseña correctamente
+        $data['passwordHash'] = password_hash($data['password'], PASSWORD_BCRYPT);
+        unset($data['password']); // Eliminar el campo original por seguridad
 
         if ($this->user->create($data)) {
-            echo json_encode(["status" => "success"]);
+            echo json_encode(["status" => "success", "message" => "Usuario creado correctamente"]);
         } else {
             echo json_encode(["status" => "error", "message" => "Error al crear usuario"]);
         }
     }
 
-    public function updateUser($id, $data) {
+    // Actualizar un usuario
+    public function update($id) {
+        header('Content-Type: application/json');
+        $data = json_decode(file_get_contents("php://input"), true);
+
         if (!$this->validateUserData($data, false)) {
             echo json_encode(["status" => "error", "message" => "Datos inválidos"]);
             return;
         }
 
-        if ($this->user->update($id, $data)) {
-            echo json_encode(["status" => "success"]);
+        $result = $this->user->update($id, $data);
+
+        if ($result && $result['success']) {
+            echo json_encode(["status" => "success", "message" => "Usuario actualizado correctamente"]);
         } else {
-            echo json_encode(["status" => "error", "message" => "Error al actualizar usuario"]);
+            echo json_encode(["status" => "error", "message" => $result['message'] ?? "Error al actualizar usuario"]);
         }
     }
 
-    public function deleteUser($id) {
-        if ($this->user->delete($id)) {
-            echo json_encode(["status" => "success"]);
-        } else {
-            echo json_encode(["status" => "error", "message" => "Error al eliminar usuario"]);
-        }
+    // Eliminar un usuario
+    public function delete($id) {
+        header('Content-Type: application/json');
+        $result = $this->user->delete($id);
+
+        echo json_encode([
+            "status" => isset($result['success']) ? "success" : "error",
+            "message" => $result['message'] ?? "Error al eliminar usuario"
+        ]);
     }
 
+    // Validar los datos del usuario antes de crearlo o actualizarlo
     private function validateUserData($data, $isCreate = true) {
         if ($isCreate && (!isset($data['identificacion']) || !is_numeric($data['identificacion']))) return false;
         if (!isset($data['nombre']) || strlen($data['nombre']) < 3) return false;
         if (!isset($data['correoElectronico']) || !filter_var($data['correoElectronico'], FILTER_VALIDATE_EMAIL)) return false;
-        if ($isCreate && (!isset($data['passwordHash']) || strlen($data['passwordHash']) < 6)) return false;
+        if ($isCreate && (!isset($data['password']) || strlen($data['password']) < 6)) return false;
         return true;
     }
 }

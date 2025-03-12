@@ -1,12 +1,12 @@
 <?php
-require_once './api/models/Cultivos.php';
+require_once './api/models/Plantaciones.php';
 require_once(__DIR__ . '/../config/DataBase.php');
 
-class CultivosController {
+class PlantacionesController {
     private $model;
-
+    
     public function __construct() {
-        $this->model = new Cultivos();
+        $this->model = new Plantaciones();
     }
     
     public function getAll() {
@@ -22,13 +22,11 @@ class CultivosController {
             echo json_encode(["status" => "error", "message" => "Datos de entrada inválidos"]);
             return;
         }
-        
         if ($this->model->create($data)) {
-            echo json_encode(["status" => "success", "message" => "Cultivo creado"]);
+            echo json_encode(["status" => "success", "message" => "Registro creado"]);
         } else {
-            echo json_encode(["status" => "error", "message" => "Error al crear cultivo"]);
+            echo json_encode(["status" => "error", "message" => "Error al crear el registro"]);
         }
-
     }
     public function update($id) {
         $json = file_get_contents("php://input");
@@ -37,19 +35,18 @@ class CultivosController {
             echo json_encode(["status" => "error", "message" => "Datos de entrada inválidos"]);
             return;
         }
-        
         if ($this->model->update($id, $data)) {
-            echo json_encode(["status" => "success", "message" => "Cultivo actualizado"]);
+            echo json_encode(["status" => "success", "message" => "Registro actualizado"]);
         } else {
-            echo json_encode(["status" => "error", "message" => "Error al actualizar cultivo"]);
+            echo json_encode(["status" => "error", "message" => "Error al actualizar el registro"]);
+        }
+    }
+    public function delete($id) {
+        if ($this->model->delete($id)) {
+            echo json_encode(["status" => "success", "message" => "Registro eliminado"]);
+        } else {
+            echo json_encode(["status" => "error", "message" => "Error al eliminar el registro"]);
         }
     }
     
-    public function delete($id) {
-        if ($this->model->delete($id)) {
-            echo json_encode(["status" => "success", "message" => "Cultivo eliminado"]);
-        } else {
-            echo json_encode(["status" => "error", "message" => "Error al eliminar cultivo"]);
-        }
-    }
 }

@@ -1,15 +1,15 @@
 <?php
 require_once (__DIR__ . '/../config/DataBase.php');
 
-class Cultivos {
+class Cosecha {
     private $conn;
-    private $table = "cultivos";
+    private $table = "cosechas";
 
     public function __construct() {
         $database = new Database();
         $this->conn = $database->getConnection();
-    }
-
+    }  
+    
     public function getAll() {
         $query = "SELECT * FROM " . $this->table;
         $stmt = $this->conn->prepare($query);
@@ -23,29 +23,29 @@ class Cultivos {
         $stmt->execute([$id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
     public function create($data) {
-        $query = "INSERT INTO ". $this->table. "(fk_Especies, nombre, unidades, activo, fechaSiembra) VALUES (?, ?, ?, ?, ?)";
+        $query = "INSERT INTO ". $this->table. "(fk_Cultivos , unidades, fecha) VALUES (?, ?, ?)";
         $stmt = $this->conn->prepare($query);
         return $stmt->execute([
-            $data['fk_Especies'],
-            $data['nombre'],
+            $data['fk_Cultivos'],
             $data['unidades'],
-            $data['activo'],
-            $data['fechaSiembra']
+            $data['fecha']
         ]);
     }
+    
     public function update($id, $data) {
-        $query = "UPDATE ". $this->table. " SET fk_Especies =?, nombre =?, unidades =?, activo =?, fechaSiembra =? WHERE id =?";
+        $query = "UPDATE ". $this->table. " SET fk_Cultivos =?, unidades =?, fecha =? WHERE id =?";
         $stmt = $this->conn->prepare($query);
         return $stmt->execute([
-            $data['fk_Especies'],
-            $data['nombre'],
+            $data['fk_Cultivos'],
             $data['unidades'],
-            $data['activo'],
-            $data['fechaSiembra'],
+            $data['fecha'],
             $id
         ]);
+    
     }
+    
     public function delete($id) {
         $query = "DELETE FROM ". $this->table. " WHERE id =?";
         $stmt = $this->conn->prepare($query);

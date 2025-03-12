@@ -1,9 +1,9 @@
 <?php
 require_once (__DIR__ . '/../config/DataBase.php');
 
-class Cultivos {
+class UsoProductoControl {
     private $conn;
-    private $table = "cultivos";
+    private $table = "usoproductocontrol";
 
     public function __construct() {
         $database = new Database();
@@ -23,32 +23,32 @@ class Cultivos {
         $stmt->execute([$id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
     public function create($data) {
-        $query = "INSERT INTO ". $this->table. "(fk_Especies, nombre, unidades, activo, fechaSiembra) VALUES (?, ?, ?, ?, ?)";
+        $query = "INSERT INTO ". $this->table. "(fk_ProductosControl, fk_Controles, cantidadProducto) VALUES (?, ?, ?)";
         $stmt = $this->conn->prepare($query);
         return $stmt->execute([
-            $data['fk_Especies'],
-            $data['nombre'],
-            $data['unidades'],
-            $data['activo'],
-            $data['fechaSiembra']
+            $data['fk_ProductosControl'],
+            $data['fk_Controles'],
+            $data['cantidadProducto']
         ]);
     }
+    
     public function update($id, $data) {
-        $query = "UPDATE ". $this->table. " SET fk_Especies =?, nombre =?, unidades =?, activo =?, fechaSiembra =? WHERE id =?";
+        $query = "UPDATE ". $this->table. " SET fk_ProductosControl =?, fk_Controles =?, cantidadProducto =? WHERE id =?";
         $stmt = $this->conn->prepare($query);
         return $stmt->execute([
-            $data['fk_Especies'],
-            $data['nombre'],
-            $data['unidades'],
-            $data['activo'],
-            $data['fechaSiembra'],
+            $data['fk_ProductosControl'],
+            $data['fk_Controles'],
+            $data['cantidadProducto'],
             $id
         ]);
     }
+    
     public function delete($id) {
         $query = "DELETE FROM ". $this->table. " WHERE id =?";
         $stmt = $this->conn->prepare($query);
         return $stmt->execute([$id]);
     }
+
 }

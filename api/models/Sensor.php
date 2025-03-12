@@ -1,15 +1,15 @@
 <?php
 require_once (__DIR__ . '/../config/DataBase.php');
 
-class Cultivos {
+class Sensores {
     private $conn;
-    private $table = "cultivos";
+    private $table = "sensores";
 
     public function __construct() {
         $database = new Database();
         $this->conn = $database->getConnection();
     }
-
+    
     public function getAll() {
         $query = "SELECT * FROM " . $this->table;
         $stmt = $this->conn->prepare($query);
@@ -23,31 +23,30 @@ class Cultivos {
         $stmt->execute([$id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+    
     public function create($data) {
-        $query = "INSERT INTO ". $this->table. "(fk_Especies, nombre, unidades, activo, fechaSiembra) VALUES (?, ?, ?, ?, ?)";
+        $query = "INSERT INTO " . $this->table . " (nombre, tipo, descripcion) VALUES (?, ?, ?)";
         $stmt = $this->conn->prepare($query);
         return $stmt->execute([
-            $data['fk_Especies'],
             $data['nombre'],
-            $data['unidades'],
-            $data['activo'],
-            $data['fechaSiembra']
+            $data['tipo'],
+            $data['descripcion'] ?? null
         ]);
     }
+    
     public function update($id, $data) {
-        $query = "UPDATE ". $this->table. " SET fk_Especies =?, nombre =?, unidades =?, activo =?, fechaSiembra =? WHERE id =?";
+        $query = "UPDATE " . $this->table . " SET nombre = ?, tipo = ?, descripcion = ? WHERE id = ?";
         $stmt = $this->conn->prepare($query);
         return $stmt->execute([
-            $data['fk_Especies'],
             $data['nombre'],
-            $data['unidades'],
-            $data['activo'],
-            $data['fechaSiembra'],
+            $data['tipo'],
+            $data['descripcion'] ?? null,
             $id
         ]);
     }
+    
     public function delete($id) {
-        $query = "DELETE FROM ". $this->table. " WHERE id =?";
+        $query = "DELETE FROM " . $this->table . " WHERE id = ?";
         $stmt = $this->conn->prepare($query);
         return $stmt->execute([$id]);
     }
