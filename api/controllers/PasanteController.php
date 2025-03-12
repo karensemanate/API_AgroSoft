@@ -10,12 +10,10 @@ class PasanteController {
         $this->pasante = new Pasante($database->getConnection());
     }
 
-    // Obtener todos los pasantes
     public function getAll() {
         echo json_encode(["status" => "success", "data" => $this->pasante->getAll()]);
     }
 
-    // Obtener un pasante por ID
     public function getById($id) {
         $pasante = $this->pasante->getById($id);
         if ($pasante) {
@@ -25,7 +23,6 @@ class PasanteController {
         }
     }
 
-    // Crear un pasante
     public function create($data) {
         if (empty($data['fk_Usuarios']) || empty($data['fechaInicioPasantia']) || empty($data['fechaFinalizacion']) || empty($data['salarioHora']) || empty($data['area']) ) {
             echo json_encode(["status" => "error", "message" => "Datos incompletos"]);
@@ -39,7 +36,6 @@ class PasanteController {
         }
     }
 
-    // Actualizar un pasante
     public function update($id, $data) {
         if ($this->pasante->update($id, $data)) {
             echo json_encode(["status" => "success", "message" => "Pasante actualizado correctamente"]);
@@ -48,7 +44,6 @@ class PasanteController {
         }
     }
 
-    // Eliminar un pasante
     public function delete($id) {
         if ($this->pasante->delete($id)) {
             echo json_encode(["status" => "success", "message" => "Pasante eliminado correctamente"]);
@@ -56,5 +51,19 @@ class PasanteController {
             echo json_encode(["status" => "error", "message" => "Error al eliminar pasante"]);
         }
     }
+
+    public function patch($id) {
+        header('Content-Type: application/json');
+        $data = json_decode(file_get_contents("php://input"), true);
+    
+        if (!$id || empty($data)) {
+            echo json_encode(["status" => "error", "message" => "ID o datos inválidos"]);
+            return;
+        }
+    
+        $result = $this->model->patch($id, $data);
+        echo json_encode($result);
+        }
+    
 }
 ?>

@@ -23,23 +23,19 @@ class TiposPlagasController {
     }
     
     public function create() {
-        // Obtener los datos enviados desde POST o JSON
         $jsonInput = file_get_contents("php://input");
         $data = !empty($_POST) ? $_POST : json_decode($jsonInput, true);
     
-        // Validar que $data es un array
         if (!is_array($data)) {
             echo json_encode(["status" => "error", "message" => "Datos de entrada inválidos"]);
             return;
         }
     
-        // Verificar si los campos requeridos existen y no están vacíos
         if (empty($data['nombre']) || empty($data['descripcion'])) {
             echo json_encode(["status" => "error", "message" => "Faltan campos obligatorios"]);
             return;
         }
     
-        // Manejo de imagen si está presente
         if (isset($_FILES['img']) && $_FILES['img']['error'] === UPLOAD_ERR_OK) {
             $uploadDir = __DIR__ . "/../uploads/";
             if (!is_dir($uploadDir) && !mkdir($uploadDir, 0777, true) && !is_dir($uploadDir)) {
@@ -59,7 +55,6 @@ class TiposPlagasController {
             $data['img'] = $relativePath;
         }
     
-        // Guardar en la base de datos
         if ($this->model->create($data)) {
             echo json_encode(["status" => "success", "message" => "Registro creado exitosamente"]);
         } else {
@@ -73,10 +68,8 @@ class TiposPlagasController {
             return;
         }
     
-        // Obtener datos desde $_REQUEST porque $_POST no funciona con form-data
         $data = $_REQUEST; 
     
-        // Si $_REQUEST está vacío, intenta leer los datos en JSON (en caso de raw JSON)
         if (empty($data)) {
             $jsonInput = file_get_contents("php://input");
             $decodedJson = json_decode($jsonInput, true);
@@ -86,13 +79,11 @@ class TiposPlagasController {
             }
         }
     
-        // Si no hay datos, se devuelve error
         if (empty($data) && empty($_FILES)) {
             echo json_encode(["status" => "error", "message" => "No se recibieron datos para actualizar"]);
             return;
         }
     
-        // Guardar imagen si se envió
         if (!empty($_FILES['img']['name']) && $_FILES['img']['error'] === UPLOAD_ERR_OK) {
             $uploadDir = __DIR__ . "/../uploads/";
             if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
@@ -109,7 +100,6 @@ class TiposPlagasController {
             $data['img'] = $relativePath;
         }
     
-        // Intentar actualizar en la base de datos
         if ($this->model->update($id, $data)) {
             echo json_encode(["status" => "success", "message" => "Actualizado correctamente"]);
         } else {
@@ -124,5 +114,18 @@ class TiposPlagasController {
             echo json_encode(["status" => "error", "message" => "Error al eliminar tipo de especie"]);
         }
     }
+
+    public function patch($id) {
+        header('Content-Type: application/json');
+        $data = json_decode(file_get_contents("php://input"), true);
+    
+        if (!$id || empty($data)) {
+            echo json_encode(["status" => "error", "message" => "ID o datos inválidos"]);
+            return;
+        }
+    
+        $result = $this->model->patch($id, $data);
+        echo json_encode($result);
+        }
 
 }

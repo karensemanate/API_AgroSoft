@@ -8,7 +8,6 @@ class Pasante {
         $this->conn = $db;
     }
 
-    // Obtener todos los pasantes
     public function getAll() {
         $query = "SELECT * FROM " . $this->table;
         $stmt = $this->conn->prepare($query);
@@ -16,7 +15,6 @@ class Pasante {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // Obtener un pasante por ID
     public function getById($id) {
         $query = "SELECT * FROM " . $this->table . " WHERE id = ?";
         $stmt = $this->conn->prepare($query);
@@ -24,7 +22,6 @@ class Pasante {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    // Crear un pasante
     public function create($data) {
         if (!isset($data['fk_Usuarios'], $data['fechaInicioPasantia'], $data['fechaFinalizacion'], $data['salarioHora'], $data['area'])) {
             return ["status" => "error", "message" => "Datos incompletos"];
@@ -51,7 +48,6 @@ class Pasante {
     }
     
 
-    // Actualizar un pasante
     public function update($id, $data) {
         $query = "UPDATE " . $this->table . " SET fk_Usuarios = ?, fechaInicioPasantia = ?, fechaFinalizacion = ?, salarioHora = ? WHERE id = ?";
         $stmt = $this->conn->prepare($query);
@@ -63,6 +59,19 @@ class Pasante {
         $query = "DELETE FROM " . $this->table . " WHERE id = ?";
         $stmt = $this->conn->prepare($query);
         return $stmt->execute([$id]);
+    }
+
+    public function patch($id, $data) {
+        if (empty($data)) return ["error" => "No hay datos para actualizar"];
+    
+        $set = implode(", ", array_map(fn($key) => "$key = :$key", array_keys($data)));
+        $query = "UPDATE " . $this->table . " SET $set WHERE id = :id";
+        $stmt = $this->conn->prepare($query);
+    
+        foreach ($data as $key => &$value) $stmt->bindParam(":$key", $value);
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+    
+        return $stmt->execute() ? ["success" => "Pasante actualizado"] : ["error" => "No se actualizó nada"];
     }
 }
 ?>

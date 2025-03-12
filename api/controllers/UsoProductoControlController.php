@@ -54,4 +54,17 @@ class UsosProductoControlController {
         }
     
     }
+
+    public function patch($id) {
+        header('Content-Type: application/json');
+        $data = json_decode(file_get_contents("php://input"), true);
+    
+        if (!$id || empty($data)) {
+            echo json_encode(["status" => "error", "message" => "ID o datos inválidos"]);
+            return;
+        }
+    
+        $result = $this->model->patch($id, $data);
+        echo json_encode($result);
+        }
 }

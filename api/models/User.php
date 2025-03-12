@@ -10,16 +10,14 @@ class User {
         $this->connect = $db;
     }
 
-    // Verificar si un usuario existe en la base de datos
     private function exists($id) {
         $query = "SELECT COUNT(*) FROM " . $this->table . " WHERE identificacion = :id";
         $stmt = $this->connect->prepare($query);
         $stmt->bindParam(':id', $id, is_numeric($id) ? PDO::PARAM_INT : PDO::PARAM_STR);
         $stmt->execute();
-        return $stmt->fetchColumn() > 0; // Devuelve true si el usuario existe
+        return $stmt->fetchColumn() > 0; 
     }
 
-    // Obtener todos los usuarios
     public function getAll() {
         try {
             $query = "SELECT * FROM " . $this->table;
@@ -31,7 +29,6 @@ class User {
         }
     }
 
-    // Obtener un usuario por ID
     public function getById($id) {
         try {
             $query = "SELECT * FROM " . $this->table . " WHERE identificacion = :id";
@@ -44,28 +41,26 @@ class User {
         }
     }
 
-    // Crear un nuevo usuario
     public function create($data) {
         try {
-            if (empty($data['password'])) {
-                return ["error" => "La contraseña es obligatoria."];
-            }
-
-            $data['passwordHash'] = password_hash($data['password'], PASSWORD_DEFAULT); // Hashear la contraseña
-            unset($data['password']); // Eliminar la clave en texto plano por seguridad
-
-            $query = "INSERT INTO " . $this->table . " (identificacion, nombre, apellidos, fechaNacimiento, telefono, correoElectronico, passwordHash, admin) 
+            $query = "INSERT INTO " . $this->table . " 
+                      (identificacion, nombre, apellidos, fechaNacimiento, telefono, correoElectronico, passwordHash, admin) 
                       VALUES (:identificacion, :nombre, :apellidos, :fechaNacimiento, :telefono, :correoElectronico, :passwordHash, :admin)";
+    
             $stmt = $this->connect->prepare($query);
-            $stmt->execute($data);
-
-            return ["success" => "Usuario creado correctamente."];
+    
+            if ($stmt->execute($data)) {
+                return ["success" => "Usuario creado correctamente."];
+            } else {
+                return ["error" => "Error al insertar el usuario."];
+            }
         } catch (PDOException $e) {
             return ["error" => $e->getMessage()];
         }
     }
+    
+    
 
-    // Actualizar un usuario
     public function update($id, $data) {
         try {
             if (!$this->exists($id)) {
@@ -86,7 +81,6 @@ class User {
         }
     }
 
-    // Eliminar un usuario
     public function delete($id) {
         try {
             if (!$this->exists($id)) {
@@ -103,6 +97,37 @@ class User {
             return ["error" => $e->getMessage()];
         }
     }
-}
-?>
 
+    public function patch($id, $data) {
+        try {
+            if (!$this->exists($id)) {
+                return ["error" => "El usuario con ID $id no existe."];
+            }
+    
+            $set = [];
+            foreach ($data as $key => $value) {
+                $set[] = "$key = :$key";
+            }
+            $setStr = implode(", ", $set);
+    
+            $query = "UPDATE " . $this->table . " SET $setStr WHERE identificacion = :id";
+            $stmt = $this->connect->prepare($query);
+    
+            foreach ($data as $key => &$value) {
+                $stmt->bindParam(":$key", $value);
+            }
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+    
+            $stmt->execute();
+    
+            return ["success" => "Usuario actualizado correctamente."];
+        } catch (PDOException $e) {
+            return ["error" => $e->getMessage()];
+        }
+    }
+    
+    
+    
+}
+
+?>

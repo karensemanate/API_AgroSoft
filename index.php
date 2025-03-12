@@ -312,6 +312,15 @@ if ($controllerName && file_exists("api/controllers/$controllerName.php")) {
                 }
                 break;
 
+            case 'PATCH':
+                $data = json_decode(file_get_contents("php://input"), true);
+                if ($id && method_exists($controller, "patch")) {
+                    $response = $controller->patch($id, $data);
+                } else {
+                    $response = ["status" => "error", "message" => "Método PATCH no válido"];
+                }
+                break;
+
             default:
                 $response = ["status" => "error", "message" => "Método HTTP no soportado"];
                 break;
@@ -323,6 +332,5 @@ if ($controllerName && file_exists("api/controllers/$controllerName.php")) {
     $response = ["status" => "error", "message" => "Controlador no encontrado"];
 }
 
-// Devolver la respuesta en JSON
 echo json_encode($response);
 ?>

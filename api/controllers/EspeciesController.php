@@ -18,14 +18,13 @@ class EspeciesController {
     }
 
     public function create() {
-        $data = $_REQUEST;  // Usar $_REQUEST para recibir datos de form-data
+        $data = $_REQUEST; 
 
         if (empty($data['nombre']) || empty($data['descripcion']) || empty($data['tiempoCrecimiento'])) {
             echo json_encode(["status" => "error", "message" => "Faltan campos obligatorios"]);
             return;
         }
 
-        // Procesar la imagen si se envió
         if (!empty($_FILES['img']['name']) && $_FILES['img']['error'] === UPLOAD_ERR_OK) {
             $uploadDir = __DIR__ . "/../uploads/";
             if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
@@ -54,14 +53,13 @@ class EspeciesController {
             return;
         }
 
-        $data = $_REQUEST; // Obtener datos de form-data
+        $data = $_REQUEST; 
 
         if (empty($data) && empty($_FILES)) {
             echo json_encode(["status" => "error", "message" => "No se recibieron datos para actualizar"]);
             return;
         }
 
-        // Procesar la imagen si se envió
         if (!empty($_FILES['img']['name']) && $_FILES['img']['error'] === UPLOAD_ERR_OK) {
             $uploadDir = __DIR__ . "/../uploads/";
             if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
@@ -91,4 +89,18 @@ class EspeciesController {
             echo json_encode(["status" => "error", "message" => "Error al eliminar en la base de datos"]);
         }
     }
+
+    public function patch($id) {
+        header('Content-Type: application/json');
+        $data = json_decode(file_get_contents("php://input"), true);
+    
+        if (!$id || empty($data)) {
+            echo json_encode(["status" => "error", "message" => "ID o datos inválidos"]);
+            return;
+        }
+    
+        $result = $this->model->patch($id, $data);
+        echo json_encode($result);
+        }
+    
 }

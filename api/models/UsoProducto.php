@@ -50,4 +50,17 @@ class UsoProducto {
         $stmt = $this->conn->prepare($query);
         return $stmt->execute([$id]);
     }
+
+    public function patch($id, $data) {
+        if (empty($data)) return ["error" => "No hay datos para actualizar"];
+    
+        $set = implode(", ", array_map(fn($key) => "$key = :$key", array_keys($data)));
+        $query = "UPDATE " . $this->table . " SET $set WHERE id = :id";
+        $stmt = $this->conn->prepare($query);
+    
+        foreach ($data as $key => &$value) $stmt->bindParam(":$key", $value);
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+    
+        return $stmt->execute() ? ["success" => "Uso producto actualizado"] : ["error" => "No se actualizó nada"];
+    }
 }

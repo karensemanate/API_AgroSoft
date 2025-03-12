@@ -22,35 +22,38 @@ class UserController {
         ]);
     }
 
-    // Obtener un usuario por ID
     public function getById($id) {
         header('Content-Type: application/json');
         $user = $this->user->getById($id);
         echo json_encode($user ?: ["status" => "error", "message" => "Usuario no encontrado"]);
     }
 
-    // Crear un usuario
     public function create() {
         header('Content-Type: application/json');
         $data = json_decode(file_get_contents("php://input"), true);
-
+    
+        if (!$data) {
+            echo json_encode(["status" => "error", "message" => "JSON inválido"]);
+            return;
+        }
+    
         if (!$this->validateUserData($data)) {
             echo json_encode(["status" => "error", "message" => "Datos inválidos"]);
             return;
         }
-
-        // Hashear la contraseña correctamente
+    
+        $data['admin'] = isset($data['admin']) ? (int)$data['admin'] : 0;
+    
         $data['passwordHash'] = password_hash($data['password'], PASSWORD_BCRYPT);
-        unset($data['password']); // Eliminar el campo original por seguridad
-
-        if ($this->user->create($data)) {
-            echo json_encode(["status" => "success", "message" => "Usuario creado correctamente"]);
-        } else {
-            echo json_encode(["status" => "error", "message" => "Error al crear usuario"]);
-        }
+        unset($data['password']);
+    
+        $result = $this->user->create($data);
+    
+        echo json_encode($result);
     }
+    
+    
 
-    // Actualizar un usuario
     public function update($id) {
         header('Content-Type: application/json');
         $data = json_decode(file_get_contents("php://input"), true);
@@ -69,7 +72,6 @@ class UserController {
         }
     }
 
-    // Eliminar un usuario
     public function delete($id) {
         header('Content-Type: application/json');
         $result = $this->user->delete($id);
@@ -80,7 +82,25 @@ class UserController {
         ]);
     }
 
-    // Validar los datos del usuario antes de crearlo o actualizarlo
+    public function patch($id) {
+        header('Content-Type: application/json');
+        $data = json_decode(file_get_contents("php://input"), true);
+    
+        if (empty($data)) {
+            echo json_encode(["status" => "error", "message" => "No hay datos para actualizar"]);
+            return;
+        }
+    
+        $result = $this->user->patch($id, $data);
+    
+        if (isset($result['success'])) {
+            echo json_encode(["status" => "success", "message" => "Usuario actualizado correctamente"]);
+        } else {
+            echo json_encode(["status" => "error", "message" => $result['message'] ?? "Error al actualizar usuario"]);
+        }
+    }
+    
+
     private function validateUserData($data, $isCreate = true) {
         if ($isCreate && (!isset($data['identificacion']) || !is_numeric($data['identificacion']))) return false;
         if (!isset($data['nombre']) || strlen($data['nombre']) < 3) return false;

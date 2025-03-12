@@ -26,11 +26,9 @@ class MedicionesController {
             return;
         }
         
-        // Insertar la medición
         $medicionId = $this->model->create($data);
         
         if ($medicionId) {
-            // Calcular la evapotranspiración si es una medición relevante
             $evapotranspiracion = $this->model->calcularEvapotranspiracion($data['fk_Lote'] ?? null, $data['fk_Era'] ?? null);
             
             echo json_encode([
@@ -66,5 +64,19 @@ class MedicionesController {
             echo json_encode(["status" => "error", "message" => "Error al eliminar la medición"]);
         }
     }
+
+    public function patch($id) {
+        header('Content-Type: application/json');
+        $data = json_decode(file_get_contents("php://input"), true);
+    
+        if (!$id || empty($data)) {
+            echo json_encode(["status" => "error", "message" => "ID o datos inválidos"]);
+            return;
+        }
+    
+        $result = $this->model->patch($id, $data);
+        echo json_encode($result);
+        }
+    
 }
 ?>
