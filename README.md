@@ -127,6 +127,9 @@ El sistema usa **JSON Web Tokens (JWT)** para la autenticación.
 }
 ```
 
+### RECORDATPRIO
+El {id} en usuarios es la identificación con la que se registro.
+
 ### Uso del Token JWT
 Para acceder a rutas protegidas, agrega el token en el encabezado **Authorization**:
 ```
@@ -182,5 +185,4 @@ class Database {
 
 Desarrollado por **Karen Yuliana Semanate Bolaños**.
 
-Si tienes mejoras, siéntete libre de contribuir enviando un **Pull Request**. 🚀
-
+Si tienes mejoras, siéntete libre de contribuir enviando un **Pull Request**. 
