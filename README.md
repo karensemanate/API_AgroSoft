@@ -110,6 +110,9 @@ Donde:
 #### 5. Eliminar un registro
 - **Endpoint:** `DELETE http://localhost/API_AgroSoft/user/delete/{id}`
 
+### RECORDAToRIO
+El {id} en usuarios es la identificación con la que se registro.
+
 ## Autenticación con JWT
 
 El sistema usa **JSON Web Tokens (JWT)** para la autenticación.
@@ -132,9 +135,6 @@ El sistema usa **JSON Web Tokens (JWT)** para la autenticación.
   "token": "eyJhbGciOiJIUzI1..."
 }
 ```
-
-### RECORDATPRIO
-El {id} en usuarios es la identificación con la que se registro.
 
 ### Uso del Token JWT
 Para acceder a rutas protegidas, agrega el token en el encabezado **Authorization**:
