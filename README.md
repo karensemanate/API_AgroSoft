@@ -1,6 +1,6 @@
 # API AgroSoft - Backend con JWT
 
-Este backend proporciona un sistema de autenticación y gestión de datos agrícolas basado en **PHP** con **JWT**.
+Este es un sistema desarrollado en PHP bajo el patrón MVC, con autenticación mediante JWT, diseñado para gestionar información relacionada con las actividades agrícolas en la C.G.D.S.S. y sus áreas de influencia.
 
 ## Tecnologías Utilizadas
 
