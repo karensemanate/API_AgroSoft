@@ -91,9 +91,15 @@ Donde:
 - **Body (JSON):**
   ```json
   {
+    
+    "identificacion": 123456789,
     "nombre": "Karen",
-    "correoElectronico": "karen@email.com",
-    "password": "123456"
+    "apellidos": "Semanate Bolaños",
+    "fechaNacimiento": "2005-12-06",
+    "telefono": "3201234567",
+    "correoElectronico": "karen@gmail.com",
+    "passwordHash": "1234",
+    "admin": 0
   }
   ```
 
