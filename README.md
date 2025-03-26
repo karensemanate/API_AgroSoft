@@ -18,24 +18,26 @@ Puedes acceder al código fuente en GitHub:
 ## Estructura del Proyecto
 
 ```
-/mi-proyecto
-│── app/
-│   ├── Controllers/
+/API_AgroSoft
+│── api/
+│   ├── config/
+│   ├── controllers/
 │   │   ├── ArticuloController.php
 │   │   ├── LoteController.php
 │   │   ├── ... (28 controladores en total)
-│   ├── Models/
+│   ├── models/
 │   │   ├── Articulo.php
 │   │   ├── Lote.php
 │   │   ├── ... (28 modelos en total)
-│   ├── Middleware/
-│   │   ├── AuthMiddleware.php
-│   ├── Routes/
-│   │   ├── api.php
-│── public/
-│── config/
-│── database/
-│── views/
+│   ├── uploads/
+│   ├── middleware.php
+│── vendor/
+│── .env
+│── .htaccess
+│── agrosoftnode.sql
+│── autoload.php
+│── composer.json
+│── composer.lock
 │── index.php
 │── README.md
 ```
@@ -50,7 +52,7 @@ Puedes acceder al código fuente en GitHub:
    ```bash
    composer install
    ```
-3. Configurar la base de datos en `config/config.php`:
+3. Configurar la base de datos en `api/config/config.php`:
    ```php
    define('DB_HOST', 'localhost');
    define('DB_USER', 'root');
@@ -58,10 +60,49 @@ Puedes acceder al código fuente en GitHub:
    define('DB_NAME', 'agrosoftnode');
    define('SECRET_KEY', 'tu_clave_secreta_para_jwt');
    ```
-4. Ejecutar el servidor PHP:
+4. Importar la base de datos desde el archivo `agrosoftnode.sql` en MySQL.
+5. Ejecutar el servidor PHP:
    ```bash
-   php -S localhost:8000 -t public
+   php -S localhost:8000 -t api
    ```
+
+## Uso de la API en Postman
+
+La API sigue la siguiente estructura de rutas:
+```
+http://localhost/API_AgroSoft/{controller}/{metodo}
+```
+Donde:
+- **{controller}** es el nombre del controlador que deseas usar (por ejemplo, `user`, `articulo`, `lote`).
+- **{metodo}** es el método que deseas ejecutar (`getAll`, `getById`, `create`, `update`, `delete`, `patch`).
+
+### Ejemplos de Uso en Postman
+
+#### 1. Obtener todos los registros de un controlador
+- **Endpoint:** `GET http://localhost/API_AgroSoft/user/getAll`
+- **Descripción:** Devuelve todos los usuarios.
+
+#### 2. Obtener un registro por ID
+- **Endpoint:** `GET http://localhost/API_AgroSoft/user/getById/{id}`
+- **Ejemplo:** `GET http://localhost/API_AgroSoft/user/getById/1`
+
+#### 3. Crear un nuevo registro
+- **Endpoint:** `POST http://localhost/API_AgroSoft/user/create`
+- **Body (JSON):**
+  ```json
+  {
+    "nombre": "Karen",
+    "correoElectronico": "karen@email.com",
+    "password": "123456"
+  }
+  ```
+
+#### 4. Actualizar un registro (PUT o PATCH)
+- **PUT (actualización completa):** `PUT http://localhost/API_AgroSoft/user/update/{id}`
+- **PATCH (actualización parcial):** `PATCH http://localhost/API_AgroSoft/user/patch/{id}`
+
+#### 5. Eliminar un registro
+- **Endpoint:** `DELETE http://localhost/API_AgroSoft/user/delete/{id}`
 
 ## Autenticación con JWT
 
@@ -92,27 +133,7 @@ Para acceder a rutas protegidas, agrega el token en el encabezado **Authorizatio
 Authorization: Bearer {token}
 ```
 
-## Rutas de la API
-
-### Usuarios
-- **GET** `/api/users` → Obtiene todos los usuarios (requiere token JWT).
-- **GET** `/api/users/{id}` → Obtiene un usuario por su ID.
-- **POST** `/api/users` → Crea un nuevo usuario.
-- **PUT** `/api/users/{id}` → Actualiza un usuario.
-- **DELETE** `/api/users/{id}` → Elimina un usuario.
-
-#### Ejemplo de Request para Crear Usuario:
-```json
-{
-  "nombre": "Karen",
-  "correoElectronico": "karen@email.com",
-  "password": "123456"
-}
-```
-
 ## Middleware de Autenticación
-
-Para proteger las rutas, se utiliza un middleware que valida el token JWT en la cabecera **Authorization**.
 
 Si el token es inválido, la API devuelve el siguiente mensaje:
 ```json
@@ -125,12 +146,12 @@ Si el token es inválido, la API devuelve el siguiente mensaje:
 ## Posibles Errores y Soluciones
 
 - **Error 401 Unauthorized** → Asegúrate de enviar el token correcto en la cabecera **Authorization**.
-- **Error 500 Internal Server Error** → Revisa la conexión a la base de datos en `config/config.php`.
+- **Error 500 Internal Server Error** → Revisa la conexión a la base de datos en `api/config/config.php`.
 - **Invalid JWT Token** → El token ha expirado o es incorrecto, inicia sesión nuevamente.
 
 ## Base de Datos
 
-Ejemplo de conexión en `database/Database.php`:
+Ejemplo de conexión en `api/config/Database.php`:
 ```php
 <?php
 class Database {
@@ -148,7 +169,7 @@ class Database {
             $this->connect->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $this->connect->exec("set names utf8");
         } catch (PDOException $e) {
-            die("Error en la conexión de la base de datos: " . $e->getMessage()); 
+            die("Error en la conexión de la base de datos: " . $e->getMessage());
         }
 
         return $this->connect;
