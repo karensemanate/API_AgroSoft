@@ -13,7 +13,7 @@ class User {
     private function exists($id) {
         $query = "SELECT COUNT(*) FROM " . $this->table . " WHERE identificacion = :id";
         $stmt = $this->connect->prepare($query);
-        $stmt->bindParam(':id', $id, is_numeric($id) ? PDO::PARAM_INT : PDO::PARAM_STR);
+        $stmt->bindParam(':id', $id, PDO::PARAM_STR);
         $stmt->execute();
         return $stmt->fetchColumn() > 0; 
     }
@@ -33,7 +33,7 @@ class User {
         try {
             $query = "SELECT * FROM " . $this->table . " WHERE identificacion = :id";
             $stmt = $this->connect->prepare($query);
-            $stmt->bindParam(':id', $id, is_numeric($id) ? PDO::PARAM_INT : PDO::PARAM_STR);
+            $stmt->bindParam(':id', $id, PDO::PARAM_STR);
             $stmt->execute();
             return $stmt->fetch(PDO::FETCH_ASSOC) ?: ["error" => "Usuario no encontrado."];
         } catch (PDOException $e) {
@@ -58,8 +58,6 @@ class User {
             return ["error" => $e->getMessage()];
         }
     }
-    
-    
 
     public function update($id, $data) {
         try {
@@ -67,7 +65,8 @@ class User {
                 return ["error" => "El usuario con ID $id no existe."];
             }
 
-            $query = "UPDATE " . $this->table . " SET nombre = :nombre, apellidos = :apellidos, fechaNacimiento = :fechaNacimiento, 
+            $query = "UPDATE " . $this->table . " SET 
+                      nombre = :nombre, apellidos = :apellidos, fechaNacimiento = :fechaNacimiento, 
                       telefono = :telefono, correoElectronico = :correoElectronico, admin = :admin 
                       WHERE identificacion = :id";
 
@@ -89,7 +88,7 @@ class User {
 
             $query = "DELETE FROM " . $this->table . " WHERE identificacion = :id";
             $stmt = $this->connect->prepare($query);
-            $stmt->bindParam(':id', $id, is_numeric($id) ? PDO::PARAM_INT : PDO::PARAM_STR);
+            $stmt->bindParam(':id', $id, PDO::PARAM_STR);
             $stmt->execute();
 
             return ($stmt->rowCount() > 0) ? ["success" => "Usuario eliminado correctamente."] : ["info" => "No se eliminó ningún usuario."];
@@ -103,31 +102,45 @@ class User {
             if (!$this->exists($id)) {
                 return ["error" => "El usuario con ID $id no existe."];
             }
-    
+
             $set = [];
             foreach ($data as $key => $value) {
                 $set[] = "$key = :$key";
             }
             $setStr = implode(", ", $set);
-    
+
             $query = "UPDATE " . $this->table . " SET $setStr WHERE identificacion = :id";
             $stmt = $this->connect->prepare($query);
-    
+
             foreach ($data as $key => &$value) {
                 $stmt->bindParam(":$key", $value);
             }
-            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-    
+            $stmt->bindParam(':id', $id, PDO::PARAM_STR);
+
             $stmt->execute();
-    
+
             return ["success" => "Usuario actualizado correctamente."];
         } catch (PDOException $e) {
             return ["error" => $e->getMessage()];
         }
     }
-    
-    
-    
-}
 
+    public function login($usuario, $contraseña) {
+        try {
+            $query = "SELECT * FROM " . $this->table . " WHERE correoElectronico = :usuario OR identificacion = :usuario";
+            $stmt = $this->connect->prepare($query);
+            $stmt->bindParam(":usuario", $usuario, PDO::PARAM_STR);
+            $stmt->execute();
+
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$user || !password_verify($contraseña, $user['passwordHash'])) {
+                return ["error" => "Credenciales incorrectas"];
+            }
+
+            return $user;
+        } catch (PDOException $e) {
+            return ["error" => $e->getMessage()];
+        }
+    }
+}
 ?>

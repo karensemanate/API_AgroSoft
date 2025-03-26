@@ -3,16 +3,18 @@ require_once './api/models/User.php';
 require_once(__DIR__ . '/../config/DataBase.php');
 
 class UserController {
+    private $db; 
     private $user;
 
-    public function __construct(){
+    public function __construct() {
         $database = new Database();
-        $this->db = $database->getConnection(); 
+        $this->db = $database->getConnection();
         $this->user = new User($this->db);
     }
 
     public function getAll() {
         header('Content-Type: application/json');
+        
         $users = $this->user->getAll();
 
         echo json_encode([
@@ -22,9 +24,9 @@ class UserController {
         ]);
     }
 
-    public function getById($id) {
+    public function getById($identificacion) {
         header('Content-Type: application/json');
-        $user = $this->user->getById($id);
+        $user = $this->user->getById($identificacion);
         echo json_encode($user ?: ["status" => "error", "message" => "Usuario no encontrado"]);
     }
 
@@ -43,7 +45,6 @@ class UserController {
         }
     
         $data['admin'] = isset($data['admin']) ? (int)$data['admin'] : 0;
-    
         $data['passwordHash'] = password_hash($data['password'], PASSWORD_BCRYPT);
         unset($data['password']);
     
@@ -52,9 +53,7 @@ class UserController {
         echo json_encode($result);
     }
     
-    
-
-    public function update($id) {
+    public function update($identificacion) {
         header('Content-Type: application/json');
         $data = json_decode(file_get_contents("php://input"), true);
 
@@ -63,18 +62,18 @@ class UserController {
             return;
         }
 
-        $result = $this->user->update($id, $data);
+        $result = $this->user->update($identificacion, $data);
 
-        if ($result && $result['success']) {
+        if ($result && isset($result['success'])) {
             echo json_encode(["status" => "success", "message" => "Usuario actualizado correctamente"]);
         } else {
             echo json_encode(["status" => "error", "message" => $result['message'] ?? "Error al actualizar usuario"]);
         }
     }
 
-    public function delete($id) {
+    public function delete($identificacion) {
         header('Content-Type: application/json');
-        $result = $this->user->delete($id);
+        $result = $this->user->delete($identificacion);
 
         echo json_encode([
             "status" => isset($result['success']) ? "success" : "error",
@@ -82,24 +81,23 @@ class UserController {
         ]);
     }
 
-    public function patch($id) {
+    public function patch($identificacion) {
         header('Content-Type: application/json');
         $data = json_decode(file_get_contents("php://input"), true);
-    
+
         if (empty($data)) {
             echo json_encode(["status" => "error", "message" => "No hay datos para actualizar"]);
             return;
         }
-    
-        $result = $this->user->patch($id, $data);
-    
+
+        $result = $this->user->patch($identificacion, $data);
+
         if (isset($result['success'])) {
             echo json_encode(["status" => "success", "message" => "Usuario actualizado correctamente"]);
         } else {
             echo json_encode(["status" => "error", "message" => $result['message'] ?? "Error al actualizar usuario"]);
         }
     }
-    
 
     private function validateUserData($data, $isCreate = true) {
         if ($isCreate && (!isset($data['identificacion']) || !is_numeric($data['identificacion']))) return false;
