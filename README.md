@@ -21,6 +21,7 @@ Puedes acceder al código fuente en GitHub:
 /API_AgroSoft
 │── api/
 │   ├── config/
+|   |   ├──Database.php
 │   ├── controllers/
 │   │   ├── ArticuloController.php
 │   │   ├── LoteController.php
@@ -52,7 +53,7 @@ Puedes acceder al código fuente en GitHub:
    ```bash
    composer install
    ```
-3. Configurar la base de datos en `api/config/config.php`:
+3. Configurar la base de datos en `api/config/Database.php`:
    ```php
    define('DB_HOST', 'localhost');
    define('DB_USER', 'root');
