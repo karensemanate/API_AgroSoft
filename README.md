@@ -65,7 +65,7 @@ Puedes acceder al código fuente en GitHub:
    ```bash
    php -S localhost:8000 -t api
    ```
-
+- **Nota:** Si estás usando Laragon, solo necesitas iniciar Laragon para correr el servidor en PHP.
 ## Uso de la API en Postman
 
 La API sigue la siguiente estructura de rutas:
