@@ -21,7 +21,7 @@ Puedes acceder al código fuente en GitHub:
 /API_AgroSoft
 │── api/
 │   ├── config/
-|   |   ├──Database.php
+|   |   ├── Database.php
 │   ├── controllers/
 │   │   ├── ArticuloController.php
 │   │   ├── LoteController.php
@@ -193,3 +193,8 @@ class Database {
 Desarrollado por **Karen Yuliana Semanate Bolaños**.
 
 Si tienes mejoras, siéntete libre de contribuir enviando un **Pull Request**. 
+
+
+:::note
+holaaa
+:::
