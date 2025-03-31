@@ -193,8 +193,3 @@ class Database {
 Desarrollado por **Karen Yuliana Semanate Bolaños**.
 
 Si tienes mejoras, siéntete libre de contribuir enviando un **Pull Request**. 
-
-
-:::note
-holaaa
-:::
